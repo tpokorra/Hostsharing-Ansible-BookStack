@@ -1,0 +1,12 @@
+bookstack:
+  hosts:
+    xyz00:
+      ansible_ssh_host: xyz00.hostsharing.net
+      ansible_ssh_user: xyz00
+      pac: xyz00
+      domain: wiki.example.org
+      user: bookstack
+      password: testpassw0rd_changeme
+
+      # see https://getcomposer.org/download/
+      composer_version: 2.4.4
