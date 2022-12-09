@@ -24,8 +24,29 @@
   ##################################
   ## install bookstack
   ##################################
+  - name: create directory bookstack
+    become: yes
+    file:
+      path: "/home/pacs/{{pac}}/users/{{user}}/bookstack"
+      state: directory
 
-  # TODO
+  - name: install bookstack
+    become: yes
+    unarchive:
+      src: https://github.com/BookStackApp/BookStack/archive/refs/tags/v{{bookstack_version}}.tar.gz
+      remote_src: yes
+      dest: /home/pacs/{{pac}}/users/{{user}}/bookstack
+      extra_opts: [--strip-components=1]
+      creates: /home/pacs/{{pac}}/users/{{user}}/bookstack/.env.example
+
+  - name: install packages with composer
+    become: yes
+    shell: |
+      php ~/composer/composer.phar install --no-dev || exit -1
+    args:
+      executable: /bin/bash
+      chdir: "/home/pacs/{{pac}}/users/{{user}}/bookstack"
+      creates: "/home/pacs/{{pac}}/users/{{user}}/bookstack/vendor"
 
   ##################################
   ## configuration
@@ -38,17 +59,56 @@
       dest: "/home/pacs/{{pac}}/users/{{user}}/.my.cnf"
       mode: "700"
 
-  # TODO
+  - name: upload the configuration file
+    become: yes
+    template:
+      src: "templates/env"
+      dest: "/home/pacs/{{pac}}/users/{{user}}/bookstack/.env"
+      mode: "700"
+
+  - name: set unique application key
+    become: yes
+    shell: |
+      yes | php artisan key:generate || exit -1
+    args:
+      executable: /bin/bash
+      chdir: "/home/pacs/{{pac}}/users/{{user}}/bookstack"
 
   ######################
   ## initialise instance
   ######################
 
-  # TODO
+  - name: initialise the database
+    become: yes
+    shell: |
+      yes | php artisan migrate || exit -1
+    args:
+      executable: /bin/bash
+      chdir: "/home/pacs/{{pac}}/users/{{user}}/bookstack"
+
+  - name: set admin email and password
+    become: yes
+    shell: |
+      php artisan tinker --execute="\$user = User::where('email', 'admin@admin.com')->first();\$user->password = Hash::make('{{AdminPassword}}');\$user->email = '{{AdminEmail}}';\$user->save();" || exit -1
+      touch .ansible_init_admin_user
+    args:
+      executable: /bin/bash
+      chdir: "/home/pacs/{{pac}}/users/{{user}}/bookstack"
+      creates: "/home/pacs/{{pac}}/users/{{user}}/.ansible_init_admin_user"
 
   ########################
   ## setup the apache site
   ########################
-
-  # TODO
-
+  - name: drop htdocs-ssl
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    file:
+       path: "/home/pacs/{{pac}}/users/{{user}}/doms/{{domain}}/htdocs-ssl"
+       state: absent
+  - name: create symbolic link for htdocs-ssl
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    file:
+      src: "/home/pacs/{{pac}}/users/{{user}}/bookstack/public"
+      dest: "/home/pacs/{{pac}}/users/{{user}}/doms/{{domain}}/htdocs-ssl"
+      state: link
