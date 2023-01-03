@@ -1,0 +1,84 @@
+---
+- hosts: bookstack
+  become_user: "{{pac}}-{{user}}"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  tasks:
+
+  - name: create directory backup
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    file:
+      path: "/home/pacs/{{pac}}/users/{{user}}/backup"
+      state: directory
+
+  - name: backup config file and storage
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    shell: |
+      if [ -f backup-`date +'%Y%m%d'`.tar.gz ]; then exit -1; fi
+      tar czf backup-`date +'%Y%m%d'`.tar.gz \
+         ../bookstack/.env \
+         ../bookstack/storage/ || exit -1
+    args:
+      executable: /bin/bash
+      chdir: "/home/pacs/{{pac}}/users/{{user}}/backup"
+
+  - name: drop bookstack directory
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    file:
+      state: absent
+      path: "/home/pacs/{{pac}}/users/{{user}}/bookstack"
+
+  - name: create bookstack directory
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    file:
+      state: directory
+      path: "/home/pacs/{{pac}}/users/{{user}}/bookstack"
+
+  - name: install latest bookstack
+    become: yes
+    unarchive:
+      src: https://github.com/BookStackApp/BookStack/archive/refs/tags/v{{bookstack_version}}.tar.gz
+      remote_src: yes
+      dest: /home/pacs/{{pac}}/users/{{user}}/bookstack
+      extra_opts: [--strip-components=1]
+
+  - name: restore config file and storage
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    shell: |
+      tar xzf backup/backup-`date +'%Y%m%d'`.tar.gz
+    args:
+      executable: /bin/bash
+      chdir: "/home/pacs/{{pac}}/users/{{user}}"
+
+  - name: update packages with composer
+    become: yes
+    shell: |
+      php ~/composer/composer.phar install --no-dev || exit -1
+    args:
+      executable: /bin/bash
+      chdir: "/home/pacs/{{pac}}/users/{{user}}/bookstack"
+
+  - name: update the database
+    become: yes
+    shell: |
+      yes | php artisan migrate || exit -1
+    args:
+      executable: /bin/bash
+      chdir: "/home/pacs/{{pac}}/users/{{user}}/bookstack"
+
+  - name: clear the caches
+    become: yes
+    shell: |
+        php artisan cache:clear || exit -1
+        php artisan config:clear || exit -1
+        php artisan view:clear || exit -1
+    args:
+      executable: /bin/bash
+      chdir: "/home/pacs/{{pac}}/users/{{user}}/bookstack"
+
