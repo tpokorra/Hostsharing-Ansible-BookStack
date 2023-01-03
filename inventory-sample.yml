@@ -7,9 +7,12 @@ bookstack:
       domain: wiki.example.org
       user: bookstack
       password: testpassw0rd_changeme
+      db_name: bookstack
+      db_user: bookstack
+      db_password: testpassw0rd2_changeme
 
       AdminEmail: admin@example.org
-      AdminPassword: testpassw0rd2_changeme
+      AdminPassword: testpassw0rd3_changeme
 
       # see https://github.com/BookStackApp/BookStack/releases
       bookstack_version: "22.11.1"

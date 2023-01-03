@@ -22,9 +22,9 @@ APP_URL=https://{{domain}}
 
 # Database details
 DB_HOST=localhost
-DB_DATABASE={{pac}}_{{user}}
-DB_USERNAME={{pac}}_{{user}}
-DB_PASSWORD={{password}}
+DB_DATABASE={{pac}}_{{db_name}}
+DB_USERNAME={{pac}}_{{db_user}}
+DB_PASSWORD="{{db_password}}"
 
 # Mail system to use
 # Can be 'smtp' or 'sendmail'
@@ -40,5 +40,5 @@ MAIL_FROM=bookstack@{{domain}}
 MAIL_HOST={{pac}}.hostsharing.net
 MAIL_PORT=25
 MAIL_USERNAME={{pac}}-{{user}}
-MAIL_PASSWORD={{password}}
+MAIL_PASSWORD="{{password}}"
 MAIL_ENCRYPTION=tls

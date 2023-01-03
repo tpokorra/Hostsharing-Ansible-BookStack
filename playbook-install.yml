@@ -95,13 +95,11 @@
   ########################
   - name: drop htdocs-ssl
     become: yes
-    become_user: "{{pac}}-{{user}}"
     file:
        path: "/home/pacs/{{pac}}/users/{{user}}/doms/{{domain}}/htdocs-ssl"
        state: absent
   - name: create symbolic link for htdocs-ssl
     become: yes
-    become_user: "{{pac}}-{{user}}"
     file:
       src: "/home/pacs/{{pac}}/users/{{user}}/bookstack/public"
       dest: "/home/pacs/{{pac}}/users/{{user}}/doms/{{domain}}/htdocs-ssl"
