@@ -7,6 +7,7 @@ bookstack:
       domain: wiki.example.org
       user: bookstack
       password: testpassw0rd_changeme
+
       db_name: bookstack
       db_user: bookstack
       db_password: testpassw0rd2_changeme
