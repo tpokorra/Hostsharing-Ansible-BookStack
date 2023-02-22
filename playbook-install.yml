@@ -104,3 +104,7 @@
       src: "/home/pacs/{{pac}}/users/{{user}}/bookstack/public"
       dest: "/home/pacs/{{pac}}/users/{{user}}/doms/{{domain}}/htdocs-ssl"
       state: link
+  - name: upload apache .htaccess to domain directory for API access
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    template: dest="/home/pacs/{{pac}}/users/{{user}}/doms/{{domain}}/.htaccess" src="templates/htaccess_domain" mode=0644
