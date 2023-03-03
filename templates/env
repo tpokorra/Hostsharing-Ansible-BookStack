@@ -42,3 +42,6 @@ MAIL_PORT=25
 MAIL_USERNAME={{pac}}-{{user}}
 MAIL_PASSWORD="{{password}}"
 MAIL_ENCRYPTION=tls
+
+# see https://www.bookstackapp.com/docs/admin/upload-config/#storage-options
+STORAGE_IMAGE_TYPE=local_secure
