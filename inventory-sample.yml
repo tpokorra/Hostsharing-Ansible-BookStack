@@ -16,7 +16,7 @@ bookstack:
       AdminPassword: testpassw0rd3_changeme
 
       # see https://github.com/BookStackApp/BookStack/releases
-      bookstack_version: "23.02.1"
+      bookstack_version: "23.02.2"
 
       # see https://getcomposer.org/download/
       composer_version: 2.4.4
